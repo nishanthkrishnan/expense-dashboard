@@ -1,0 +1,46 @@
+:root {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f7f7f5;
+  --bg-tertiary: #f0efe9;
+  --text-primary: #1a1a1a;
+  --text-secondary: #6b6b6b;
+  --text-tertiary: #999999;
+  --border-light: rgba(0, 0, 0, 0.08);
+  --border-mid: rgba(0, 0, 0, 0.15);
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'SF Mono', 'Fira Code', 'Fira Mono', monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #242424;
+    --bg-tertiary: #2c2c2c;
+    --text-primary: #e8e8e8;
+    --text-secondary: #a0a0a0;
+    --text-tertiary: #707070;
+    --border-light: rgba(255, 255, 255, 0.06);
+    --border-mid: rgba(255, 255, 255, 0.12);
+  }
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}

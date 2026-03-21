@@ -1,0 +1,49 @@
+.header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 500;
+}
+
+.sectionLabel {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 10px;
+}
+
+.charts {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 16px;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .charts {
+    grid-template-columns: 1fr;
+  }
+}
+
+.chartBox {
+  border: 0.5px solid var(--border-mid);
+  border-radius: var(--radius-lg);
+  padding: 1rem 1.25rem;
+  background: var(--bg-primary);
+}
+
+.chartTitle {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
