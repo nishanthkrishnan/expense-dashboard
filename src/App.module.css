@@ -32,6 +32,32 @@
   border-bottom-color: var(--bg-primary);
 }
 
+.syncBtn {
+  margin-left: auto;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  background: none;
+  border: 0.5px solid var(--border-mid);
+  border-radius: 6px;
+  padding: 5px 12px;
+  cursor: pointer;
+  align-self: center;
+  position: relative;
+  bottom: 0;
+}
+
+.syncBtn:hover:not(:disabled) {
+  color: var(--text-secondary);
+  border-color: var(--text-tertiary);
+}
+
+.syncBtn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
 /* Loading state */
 .loading {
   display: flex;

@@ -14,6 +14,22 @@ export default function App() {
   const [activePage, setActivePage] = useState('analytics');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [syncing, setSyncing] = useState(false);
+  const [syncStatus, setSyncStatus] = useState(null); // 'ok' | 'error' | null
+
+  async function triggerSync() {
+    setSyncing(true);
+    setSyncStatus(null);
+    try {
+      const res = await fetch('/api/trigger-sync', { method: 'POST' });
+      setSyncStatus(res.ok ? 'ok' : 'error');
+    } catch {
+      setSyncStatus('error');
+    } finally {
+      setSyncing(false);
+      setTimeout(() => setSyncStatus(null), 4000);
+    }
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -88,6 +104,13 @@ export default function App() {
           onClick={() => setActivePage('settlement')}
         >
           Settlement
+        </button>
+        <button
+          className={styles.syncBtn}
+          onClick={triggerSync}
+          disabled={syncing}
+        >
+          {syncing ? 'Syncing…' : syncStatus === 'ok' ? 'Synced ✓' : syncStatus === 'error' ? 'Failed ✗' : 'Sync now'}
         </button>
       </nav>
 
