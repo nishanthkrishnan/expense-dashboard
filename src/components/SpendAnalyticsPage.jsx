@@ -1,10 +1,11 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { filterByMonth, expandAmortized, fmtAED } from '../utils';
 import MonthFilter from './MonthFilter';
 import TrendChart from './TrendChart';
 import CategoryChart from './CategoryChart';
 import CategoryComparison from './CategoryComparison';
 import CollapsibleSection from './CollapsibleSection';
+import CategoryDrawer from './CategoryDrawer';
 import TransactionTable from './TransactionTable';
 import styles from './SpendAnalyticsPage.module.css';
 
@@ -16,6 +17,14 @@ export default function SpendAnalyticsPage({ transactions, selectedMonth, setSel
     [amortizedTransactions, selectedMonth]
   );
   const actualTotal = filtered.reduce((s, t) => s + t.amount_aed, 0);
+
+  // Drill-down panel: { category, month, mode } or null.
+  const [drill, setDrill] = useState(null);
+  const closeDrill = useCallback(() => setDrill(null), []);
+  const openAmortized = (category, month = selectedMonth) => setDrill({ category, month, mode: 'amortized' });
+  const openActual = (category) => setDrill({ category, month: selectedMonth, mode: 'actual' });
+  const activeFor = (mode) =>
+    drill && drill.mode === mode && drill.month === selectedMonth ? drill.category : null;
 
   return (
     <div>
@@ -31,11 +40,21 @@ export default function SpendAnalyticsPage({ transactions, selectedMonth, setSel
           <TrendChart data={amortizedTransactions} selectedMonth={selectedMonth} />
         </div>
         <div className={styles.chartBox}>
-          <CategoryChart data={filteredAmortized} selectedMonth={selectedMonth} />
+          <CategoryChart
+            data={filteredAmortized}
+            selectedMonth={selectedMonth}
+            onSelect={openAmortized}
+            activeCategory={activeFor('amortized')}
+          />
         </div>
       </div>
 
-      <CategoryComparison data={amortizedTransactions} selectedMonth={selectedMonth} />
+      <CategoryComparison
+        data={amortizedTransactions}
+        selectedMonth={selectedMonth}
+        onSelect={openAmortized}
+        active={drill?.mode === 'amortized' ? drill : null}
+      />
 
       <CollapsibleSection
         label="Actual spend"
@@ -48,12 +67,27 @@ export default function SpendAnalyticsPage({ transactions, selectedMonth, setSel
             <TrendChart data={transactions} selectedMonth={selectedMonth} />
           </div>
           <div className={styles.chartBox}>
-            <CategoryChart data={filtered} selectedMonth={selectedMonth} />
+            <CategoryChart
+              data={filtered}
+              selectedMonth={selectedMonth}
+              onSelect={openActual}
+              activeCategory={activeFor('actual')}
+            />
           </div>
         </div>
       </CollapsibleSection>
 
       <TransactionTable data={filtered} />
+
+      {drill && (
+        <CategoryDrawer
+          drill={drill}
+          actual={transactions}
+          amortized={amortizedTransactions}
+          onChange={setDrill}
+          onClose={closeDrill}
+        />
+      )}
     </div>
   );
 }

@@ -81,6 +81,10 @@ export function expandAmortized(transactions) {
         date: `${ym}-01`,
         amount_aed: Math.round((t.amount_aed / n) * 100) / 100,
         amount: Math.round((t.amount / n) * 100) / 100,
+        amort_index: i,
+        amort_total: n,
+        orig_date: t.date,
+        orig_amount_aed: t.amount_aed,
       });
     }
   }

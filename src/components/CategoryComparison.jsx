@@ -21,7 +21,7 @@ const MAX_ALL_MONTHS = 12; // cap for "All months" so the grid stays readable
  * Small-multiple bar charts: one per category, one bar per month in the
  * window, with the selected month highlighted. Expects amortized rows.
  */
-export default function CategoryComparison({ data, selectedMonth }) {
+export default function CategoryComparison({ data, selectedMonth, onSelect, active }) {
   const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
   const isAll = selectedMonth === 'all';
 
@@ -68,6 +68,8 @@ export default function CategoryComparison({ data, selectedMonth }) {
             selectedMonth={selectedMonth}
             isAll={isAll}
             isDark={isDark}
+            onSelect={onSelect}
+            activeMonth={active?.category === c.category ? active.month : null}
           />
         ))}
       </div>
@@ -75,7 +77,7 @@ export default function CategoryComparison({ data, selectedMonth }) {
   );
 }
 
-function CategoryCard({ card, months, selectedMonth, isAll, isDark }) {
+function CategoryCard({ card, months, selectedMonth, isAll, isDark, onSelect, activeMonth }) {
   const { category, values, current, avg } = card;
   const color = getCatStyle(category).color;
   const muted = `${color}${isDark ? '66' : '40'}`; // ~25-40% alpha tint
@@ -85,6 +87,9 @@ function CategoryCard({ card, months, selectedMonth, isAll, isDark }) {
     datasets: [{
       data: values.map(Math.round),
       backgroundColor: months.map((m) => (isAll || m === selectedMonth ? color : muted)),
+      borderColor: months.map((m) => (m === activeMonth ? (isDark ? '#ffffff' : '#1a1a1a') : 'transparent')),
+      borderWidth: months.map((m) => (m === activeMonth ? 2 : 0)),
+      borderSkipped: false,
       borderRadius: 3,
       barPercentage: 0.7,
     }],
@@ -95,13 +100,25 @@ function CategoryCard({ card, months, selectedMonth, isAll, isDark }) {
     maintainAspectRatio: false,
     animation: false,
     layout: { padding: { top: 18 } },
+    onClick: (evt, elements) => {
+      if (!onSelect || !elements.length) return;
+      const i = elements[0].index;
+      if (values[i] > 0) onSelect(category, months[i]);
+    },
+    onHover: (evt, elements) => {
+      const target = evt.native?.target;
+      if (target) target.style.cursor = onSelect && elements.length && values[elements[0].index] > 0 ? 'pointer' : 'default';
+    },
     plugins: {
       legend: { display: false },
       tooltip: {
         callbacks: {
           title: (items) => `${category} · ${items[0].label}`,
           label: (ctx) => fmtAED(ctx.raw),
+          footer: (items) => (onSelect && items[0]?.raw > 0 ? 'Click for details' : ''),
         },
+        footerColor: isDark ? '#aaa' : '#ddd',
+        footerFont: { size: 10, weight: 'normal' },
       },
     },
     scales: {
@@ -134,10 +151,15 @@ function CategoryCard({ card, months, selectedMonth, isAll, isDark }) {
   return (
     <div className={styles.card}>
       <div className={styles.cardHead}>
-        <span className={styles.catName}>
+        <button
+          type="button"
+          className={styles.catName}
+          onClick={() => onSelect?.(category, selectedMonth)}
+          title={`${category} details`}
+        >
           <span className={styles.dot} style={{ background: color }} />
           {category}
-        </span>
+        </button>
         {!isAll && <span className={styles.amount}>{fmtAED(current)}</span>}
       </div>
       <div className={styles.delta}>{delta}</div>

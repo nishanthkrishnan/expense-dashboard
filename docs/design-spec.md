@@ -196,7 +196,7 @@ Open questions:
 ```
 
 ### P-1: Amortized spend first, actual spend collapsed
-Status: Agreed
+Status: Done (fd67558)
 
 **Problem:** Actual spend is shown first, but amortized spend is the more useful monthly view, since one-off big purchases otherwise dominate their month.
 
@@ -215,7 +215,7 @@ Status: Agreed
 **Out of scope:** Changing the charts themselves.
 
 ### P-2: Full transaction list with sorting and search
-Status: Agreed
+Status: Done (fd67558)
 
 **Problem:** The table shows only the top 30 transactions by amount, with no way to re-sort or find a specific transaction (§1.8).
 
@@ -228,7 +228,7 @@ Status: Agreed
 **Search behaviour:**
 - Case-insensitive substring match across: merchant (`merchant_clean`), raw `description`, `category`, `source`, `tags`, `paid_by`, `currency`, `date`, and the amount.
 - Amounts match on their displayed text, so `210` finds `AED 210` and `210.05`; the original foreign amount is searchable too (e.g. `OMR`).
-- Several words are ANDed: `talabat nov` → Talabat rows dated in November. *(Date text is ISO, so month names need mapping. See open questions.)*
+- Several words are ANDed: `talabat nov` → Talabat rows dated in November. Month names (`nov`, `november`) match too.
 - Search combines with the existing category filter (both must match). A ✕ button clears the search.
 - The count label reflects the filter: `12 of 87 transactions`. Empty state: "No transactions match "xyz"".
 
@@ -242,7 +242,7 @@ Status: Agreed
 **Out of scope:** Editing transactions from the dashboard, and exporting.
 
 ### P-3: Category comparison across months
-Status: Agreed
+Status: Done (fd67558)
 
 **Problem:** You can see this month's category split or the overall monthly trend, but not "is Grocery up or down compared with the last few months?"
 
@@ -263,6 +263,64 @@ Status: Agreed
 
 **Out of scope:** Clicking a bar to change the selected month (could be a follow-up).
 
+### P-4: Category drill-down
+Status: Agreed
+
+**Problem:** A bar tells you *how much* went to a category, not *what* made it up. Finding out means scrolling to the table and filtering by hand, and for amortized bars and other months the table can't show it at all.
+
+**Proposal:** Click any category bar to open a **details panel** that shows what contributed to it. The page underneath doesn't move.
+
+**Where it works:**
+
+| Click on | Opens |
+|---|---|
+| A bar in **Category breakdown** (amortized or actual) | That category, the selected month, from that chart's data (amortized or actual) |
+| A bar in a **Category comparison** card | That category, **that bar's month**, amortized |
+| The **category name** on a breakdown y-axis or a comparison card header | Same as clicking its bar for the selected month (a larger, keyboard-reachable target) |
+
+Bars with zero spend aren't clickable. Bars show a pointer cursor on hover, and tooltips gain a second line: `Click for details`.
+
+**Why a side panel** (and not an inline expansion or a popover):
+- Inline expansion pushes the rest of the page down and moves the chart you just clicked. That's disruptive, especially in the 3-column comparison grid.
+- A popover is too small for a list of transactions.
+- A side panel keeps the clicked chart visible next to it, closes in one action, and you can click another bar to swap its content without closing it first.
+
+**Layout:**
+
+```
+                                   ┌──────────────────────────────┐
+  (page stays visible,             │ ● Grocery              ✕     │
+   lightly dimmed)                 │ ‹ Sep 26    Oct 26    Nov 26 ›│
+                                   │ AED 1,587 · 23 transactions   │
+                                   │ ▼ 12% vs window avg · Amortized│
+                                   │──────────────────────────────│
+                                   │ TOP MERCHANTS                │
+                                   │ Amazon        ████████  52%  │
+                                   │ Lulu          ███       21%  │
+                                   │ Big Buy       ██        11%  │
+                                   │ +4 more       ██        16%  │
+                                   │──────────────────────────────│
+                                   │ TRANSACTIONS      Amount ▾   │
+                                   │ Oct 05 Amazon     Citi   200 │
+                                   │ Oct 17 Amazon     Citi   305 │
+                                   │ Mar 12 IKEA ↻ 1/6 of 1,200   │
+                                   │ …                            │
+                                   └──────────────────────────────┘
+```
+
+- **Desktop / tablet:** panel slides in from the right, 400px wide, full height. A light dimming layer over the page. Closes on ✕, Esc, or clicking the dimmed page.
+- **Mobile (< 560px):** bottom sheet, up to 85% of the screen height, with its own scroll area. Closes on ✕ or tapping above it.
+- **Header:** category colour dot and name. Month switcher (‹ ›) to step through months without closing; it stops at the first and last month with data. Total, transaction count, change vs average of the comparison window, and an `Amortized` / `Actual` chip so it's clear which numbers you're looking at.
+- **Top merchants:** grouped by cleaned merchant name, up to 5 rows plus `+N more`, each with a thin bar in the category colour and its share %. Clicking a merchant filters the transaction list below to it (click again to clear).
+- **Transactions:** every row in that category and month, largest first, with a toggle to sort by date. Each row shows date, merchant, source badge and amount. Foreign-currency rows also show the original amount (`OMR 262.50`).
+- **Amortized slices:** when the panel shows amortized data, a slice of a spread-out purchase shows a ↻ marker and `1/6 of AED 1,200 · bought Mar 26`, so it's clear why an older purchase appears in this month.
+- **Focus:** keyboard focus moves into the panel on open and returns to what you clicked on close. The clicked bar stays highlighted (outlined) while the panel is open.
+- **"All months" selected:** breakdown bars open the category across all months (no month switcher); comparison bars still open their specific month.
+
+**Data:** None. Rows are already loaded; the panel filters existing data by category and month.
+
+**Out of scope:** Editing or recategorising from the panel (could later link to the sheet row); drill-down from the monthly trend bars (whole-month view).
+
 ---
 
 ## Decisions
@@ -275,6 +333,9 @@ Status: Agreed
 | 4 | P-3: y-scale | Independent per category |
 | 5 | P-3: window size | Same as the trend chart (4 months around the selection); "All months" capped at the latest 12 |
 | 6 | P-3: Miscellaneous card | Shown like any other category |
+| 7 | P-4: panel style | Side panel (bottom sheet on mobile) |
+| 8 | P-4: month switcher | Included in the first version |
+| 9 | P-4: actual-spend breakdown | Clickable, opens the panel with an `Actual` chip |
 
 ## Open questions
 
