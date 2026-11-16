@@ -7,7 +7,7 @@ import {
   BarElement,
   Tooltip,
 } from 'chart.js';
-import { aggregateByMonth, fmtMonth, fmtAED } from '../utils';
+import { aggregateByMonth, fmtMonth, fmtAED, getWindowMonths } from '../utils';
 import { barLabelPlugin } from '../barLabelPlugin';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, barLabelPlugin);
@@ -17,20 +17,7 @@ export default function TrendChart({ data, selectedMonth }) {
 
   const chartData = useMemo(() => {
     const monthly = aggregateByMonth(data);
-    let labels = Object.keys(monthly).sort();
-
-    if (selectedMonth !== 'all' && labels.length > 4) {
-      const i = labels.indexOf(selectedMonth);
-      const idx = i === -1 ? labels.length - 1 : i;
-      let start = idx - 2;
-      let end = start + 3;
-      if (end >= labels.length) {
-        end = labels.length - 1;
-        start = end - 3;
-      }
-      if (start < 0) start = 0;
-      labels = labels.slice(start, end + 1);
-    }
+    const labels = getWindowMonths(Object.keys(monthly).sort(), selectedMonth);
 
     const values = labels.map((l) => Math.round(monthly[l] ?? 0));
     const active = isDark ? '#5DCAA5' : '#1D9E75';

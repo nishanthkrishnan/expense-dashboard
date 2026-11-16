@@ -39,6 +39,7 @@
   border-radius: var(--radius-lg);
   padding: 1rem 1.25rem;
   background: var(--bg-primary);
+  min-width: 0; /* let Chart.js canvases shrink inside the grid */
 }
 
 .chartTitle {
@@ -46,4 +47,8 @@
   font-weight: 500;
   color: var(--text-secondary);
   margin-bottom: 12px;
+}
+
+.chartsTight {
+  margin-bottom: 0;
 }

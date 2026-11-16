@@ -2,8 +2,11 @@
   border: 0.5px solid var(--border-mid);
   border-radius: var(--radius-lg);
   padding: 1rem 1.25rem;
-  overflow-x: auto;
   background: var(--bg-primary);
+}
+
+.scroll {
+  overflow-x: auto;
 }
 
 .header {
@@ -12,8 +15,72 @@
   color: var(--text-secondary);
   margin-bottom: 12px;
   display: flex;
-  justify-content: space-between;
-  align-items: baseline;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 12px;
+}
+
+.title {
+  flex-shrink: 0;
+}
+
+.search {
+  position: relative;
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.searchInput {
+  width: 100%;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+  border: 0.5px solid var(--border-mid);
+  border-radius: 6px;
+  padding: 6px 28px 6px 10px;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.searchInput::-webkit-search-cancel-button {
+  display: none;
+}
+
+.searchInput::placeholder {
+  color: var(--text-tertiary);
+}
+
+.searchInput:focus {
+  border-color: var(--text-tertiary);
+}
+
+.searchClear {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  padding: 2px 4px;
+}
+
+.searchClear:hover {
+  color: var(--text-secondary);
+}
+
+@media (max-width: 560px) {
+  .search {
+    order: 3;
+    flex-basis: 100%;
+  }
+  .headerRight {
+    margin-left: auto;
+  }
 }
 
 .headerRight {
@@ -169,4 +236,62 @@
   padding: 2px 8px;
   border-radius: 4px;
   white-space: nowrap;
+}
+
+.sortBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-transform: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+}
+
+.sortBtn:hover {
+  color: var(--text-secondary);
+}
+
+.sortBtnRight {
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.sortIdle {
+  font-size: 10px;
+  opacity: 0.45;
+}
+
+.sortActive {
+  font-size: 9px;
+  color: var(--text-secondary);
+}
+
+.empty {
+  padding: 24px 0 12px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+
+.showAll {
+  display: block;
+  margin: 12px auto 2px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: none;
+  border: 0.5px solid var(--border-mid);
+  border-radius: 6px;
+  padding: 6px 16px;
+  cursor: pointer;
+}
+
+.showAll:hover {
+  border-color: var(--text-tertiary);
 }

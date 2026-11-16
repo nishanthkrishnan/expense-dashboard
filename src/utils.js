@@ -98,3 +98,57 @@ export function aggregateByMonth(data) {
   });
   return monthly;
 }
+
+const MONTH_NAMES = ['january','february','march','april','may','june','july','august','september','october','november','december'];
+
+/**
+ * Pick the months to display around a selection.
+ * - A month selected: a window of `size` months containing it (selected sits
+ *   third, shifted to stay inside the available data).
+ * - 'all': the latest `maxAll` months (Infinity = no cap).
+ */
+export function getWindowMonths(sortedMonths, selectedMonth, size = 4, maxAll = Infinity) {
+  if (selectedMonth === 'all') {
+    return sortedMonths.slice(Math.max(0, sortedMonths.length - maxAll));
+  }
+  if (sortedMonths.length <= size) return sortedMonths;
+  const i = sortedMonths.indexOf(selectedMonth);
+  const idx = i === -1 ? sortedMonths.length - 1 : i;
+  let start = idx - 2;
+  let end = start + size - 1;
+  if (end >= sortedMonths.length) {
+    end = sortedMonths.length - 1;
+    start = end - (size - 1);
+  }
+  if (start < 0) start = 0;
+  return sortedMonths.slice(start, start + size);
+}
+
+/**
+ * Aggregate by category and month. Returns { category: { 'YYYY-MM': total } }.
+ */
+export function aggregateByCategoryMonth(data) {
+  const out = {};
+  data.forEach((t) => {
+    const ym = t.date.slice(0, 7);
+    const c = (out[t.category] ||= {});
+    c[ym] = (c[ym] || 0) + t.amount_aed;
+  });
+  return out;
+}
+
+/**
+ * Lower-cased text a transaction can be searched by: merchant, description,
+ * category, source, tags, paid_by, currency, ISO date, month names and amounts.
+ */
+export function searchText(t) {
+  const m = +t.date.slice(5, 7);
+  const name = MONTH_NAMES[m - 1] || '';
+  return [
+    t.merchant_clean, t.description, t.category, t.source, t.tags,
+    t.paid_by, t.currency, t.date,
+    name, fmtMonth(t.date.slice(0, 7)),
+    t.amount_aed.toFixed(2), String(Math.round(t.amount_aed)),
+    t.currency !== 'AED' ? `${t.currency} ${t.amount}` : '',
+  ].join(' | ').toLowerCase();
+}
